@@ -1,4 +1,5 @@
 Console application allowing for renaming multiple files in multiple directories.
+
 Program features include:
 
 • Renaming multiple files in multiple directories.
