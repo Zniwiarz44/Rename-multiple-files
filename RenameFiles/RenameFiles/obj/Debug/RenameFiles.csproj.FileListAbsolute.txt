@@ -1,0 +1,6 @@
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\bin\Debug\RenameFiles.exe.config
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\bin\Debug\RenameFiles.exe
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\bin\Debug\RenameFiles.pdb
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\obj\Debug\RenameFiles.exe
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\obj\Debug\RenameFiles.pdb
+C:\Users\Krystian\documents\visual studio 2013\Projects\RenameFiles\RenameFiles\obj\Debug\RenameFiles.csprojResolveAssemblyReference.cache
