@@ -109,6 +109,18 @@ namespace RenameFiles
                         {
                             Console.Write("[Disabled]\n");
                         }
+
+                        Console.Write("\n8. Select to change from Before to After sequence example seq: (2017)");
+
+                        if (renFiles.RemoveAfterSeqBool)
+                        {
+                            Console.Write("\nRemoving after sequence e.g: \nTune-1-(2017)_Code#%45d6sa6.mp3 to:\nTune-1-(2017).mp3\n");
+                        }
+                        else
+                        {
+                            Console.Write("\nRemoving before sequence e.g: \nTune-1-(2017)_Code#%45d6sa6.mp3 to:\nTune-1-.mp3\n");
+                        }
+                        Console.WriteLine("\n9 Remove characters after sequence e.g: Seq: (2017) will result in: \nTune-1-(2017)_Code#%45d6sa6.mp3\nTune-1-(2017).mp3");
                         Console.WriteLine("r. Run the program");
                     }
 
@@ -163,6 +175,20 @@ namespace RenameFiles
                             {
                                 renFiles.InitSpecialChars = true;
                             }                            
+                            continue;
+                        case "8":
+                            if (renFiles.RemoveAfterSeqBool)
+                            {
+                                renFiles.RemoveAfterSeqBool = false;
+                            }
+                            else
+                            {
+                                renFiles.RemoveAfterSeqBool = true;
+                            }             
+                            continue;
+                        case "9":
+                            Console.WriteLine("Add sequence:");
+                            renFiles.RemoveAfterSeq = Console.ReadLine();
                             continue;
                         case "r":
                             renFiles.RunRename();

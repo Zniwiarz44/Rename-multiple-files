@@ -10,6 +10,13 @@ using System.Threading.Tasks;
  * By Krystian Horoszkiewicz
  */
 
+// TODO: Add ability to remove characters after specific sequence 
+/*
+ * Tyler Bates - C_cks_cker (Atomic Blonde Soundtrack)-Otb5k0fKbk0
+ * After The Fire - Der Kommissar (Atomic Blonde Soundtrack)-t6CH9Tt-aSs
+ * 
+ * */
+
 namespace RenameFiles
 {
     class RenameFiles
@@ -20,18 +27,27 @@ namespace RenameFiles
         //List<char> specialChars = new List<char>();                                   // Build in list of special characters including '.'
         Dictionary<string, string> replaceWords = new Dictionary<string, string>();     // Key: word to replace Value: replace with
         public bool UseRenameSequence { get; set; }
-        public string NewFileName { get; set; }
-        public string NewFileNameEnd { get; set; }
+        public bool FirstLetterCapital { get; set; }
+        /// <summary>
+        /// Set this value to true if you want to remove characters after the sequence
+        /// </summary>
+        public bool RemoveAfterSeqBool { get; set; }
         public int StartSequence { get; set; }
         public int SequenceWidth { get; set; }
+        public string NewFileName { get; set; }
+        public string NewFileNameEnd { get; set; }
+        /// <summary>
+        /// The following sequence will determine when to start removing characters
+        /// </summary>
+        public string RemoveAfterSeq { get; set; }
+        
 
         private string workingDir = "";
         private string newDir = "";
-        public bool FirstLetterCapital { get; set; }
         private bool returnToNewDir = false;
         private bool completed = true;
 
-        // Public access modifiers
+        #region  Public access modifiers
         /// <summary>
         /// Source directory containing files to be renamed.
         /// </summary>
@@ -53,6 +69,7 @@ namespace RenameFiles
                 return workingDir;
             }
         }
+
         /// <summary>
         /// Destination directory to which files will be moved after renaming.
         /// </summary>
@@ -73,22 +90,6 @@ namespace RenameFiles
             get
             {
                 return newDir;
-            }
-        }
-
-        /// <summary>
-        /// Makes sure list of characters contains only unique characters
-        /// </summary>
-        /// <param name="newChar"></param>
-        private void CheckCharDuplicates(char newChar)
-        {
-            if(!characters.Contains(newChar))
-            {
-                characters.Add(newChar);
-            }
-            else
-            {
-                Console.WriteLine("Character already in the list");
             }
         }
 
@@ -163,6 +164,25 @@ namespace RenameFiles
                 return initChars;
             }
         }
+        #endregion
+
+        /// <summary>
+        /// Makes sure list of characters contains only unique characters
+        /// </summary>
+        /// <param name="newChar"></param>
+        private void CheckCharDuplicates(char newChar)
+        {
+            if (!characters.Contains(newChar))
+            {
+                characters.Add(newChar);
+            }
+            else
+            {
+                Console.WriteLine("Character already in the list");
+            }
+        }
+
+        #region Lists main menu
         /// <summary>
         /// Returns a list of characters to remove
         /// </summary>
@@ -188,6 +208,7 @@ namespace RenameFiles
         {
             return replaceWords;
         }
+        #endregion
 
         // Class initializer
         /// <summary>
@@ -199,9 +220,6 @@ namespace RenameFiles
             workingDir = rootDir;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public RenameFiles()
         {
             // TODO: Complete member initialization
@@ -271,28 +289,34 @@ namespace RenameFiles
             {
                 DirectoryInfo dir = new DirectoryInfo(sDir);
                 FileInfo[] infos = dir.GetFiles();
+
+                // 0000, 1 w> 1, 0000, 13 w> 2 
+                string seqWidth = "";
+
+                for (int i = 0; i < SequenceWidth; i++)
+                {
+                    seqWidth += "0";
+                }
                 
-                foreach(FileInfo f in infos)
+                foreach (FileInfo f in infos)
                 {
                     string tempName = f.Name;
                     int indexLast = tempName.LastIndexOf('.');
-                    string extension = tempName.Substring(indexLast);       // Sets file extension to whatever is after '.' eg: .png .txt
+                    string extension = tempName.Substring(indexLast);           // Sets file extension to whatever is after '.' eg: .png .txt
 
-                    // 0000, 1 w> 1, 0000, 13 w> 2 
-                    string seqWidth = "";
-                    int currentSeqWidth = StartSequence.ToString().Length;        // 4 = 1, 12 = 2, 465 = 3
+                   /* int currentSeqWidth = StartSequence.ToString().Length;        // 4 = 1, 12 = 2, 465 = 3
 
-                    for (int i = 0; i < SequenceWidth - currentSeqWidth; i++ )
+                    for (int i = 0; i < SequenceWidth - currentSeqWidth; i++)
                     {
                         seqWidth += '0';
-                    }
+                    }*/
 
-                    File.Move(f.FullName, sDir + "\\" + NewFileName + seqWidth + StartSequence + NewFileNameEnd + extension);
-                    //Console.WriteLine("File: " + f.Name + " renamed to: " + NewFileName + seqWidth + StartSequence + NewFileNameEnd + extension);
+                    File.Move(f.FullName, sDir + "\\" + NewFileName + StartSequence.ToString(seqWidth) + NewFileNameEnd + extension);
+                    Debug.WriteLine("File: " + f.Name + " renamed to: " + NewFileName + StartSequence.ToString(seqWidth) + NewFileNameEnd + extension);
                     StartSequence++;
                 }
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -303,7 +327,7 @@ namespace RenameFiles
         /// </summary>
         public void RunRename()
         {
-            if(UseRenameSequence)
+            if (UseRenameSequence)
             {
                 RenameSequence(workingDir);
             }
@@ -311,7 +335,7 @@ namespace RenameFiles
             {
                 FindAll(workingDir);
             }
-            
+
             if (completed)
             {
                 Console.WriteLine("Renaming completed");
@@ -339,6 +363,8 @@ namespace RenameFiles
                 Console.WriteLine("Renamed: " + f.Name + "\n");
             }*/
         }
+
+        #region Renaming main menu
         /// <summary>
         /// Replace words loop has the priority over remove words and remove characters
         /// </summary>
@@ -346,6 +372,8 @@ namespace RenameFiles
         /// <returns></returns>
         private string Rename(string name)
         {
+            // Remove characters after sequence
+            name = RemoveAfterSequence(name);
             // Replace words
             name = ReplaceWords(name);
 
@@ -357,7 +385,38 @@ namespace RenameFiles
 
             return name;
         }
+        /// <summary>
+        /// Removes characters after specific sequence occurs e.g:  
+        /// Tune-1-(2017)_Code#%45d6sa6.mp3
+        /// Tune-2-(2017)_Code#%64w4eq2.mp3
+        /// Remove after sequence 17) will result in: Tune-1-(2017).mp3
+        /// If RemoveAfterSeqBool is True the sequence will remove itself including e.g:
+        /// Tune-1-(2017)_Code#%45d6sa6.mp3
+        /// Remove before sequence (2017) will result in: Tune-1-.mp3
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string RemoveAfterSequence(string name)
+        {
+            string extention = name.Substring(name.IndexOf('.'));
 
+            if(RemoveAfterSeqBool)
+            {
+                if (name.Contains(RemoveAfterSeq))
+                {
+                    name = name.Remove(name.IndexOf(RemoveAfterSeq) + RemoveAfterSeq.Length).TrimEnd() + extention;   // gets the last index of the sequence and removes everything else
+                }
+            }
+            else
+            {
+                if (name.Contains(RemoveAfterSeq))
+                {
+                    name = name.Remove(name.IndexOf(RemoveAfterSeq)).TrimEnd() + extention;   // gets the first index of the sequence and removes everything else
+                }
+            }
+
+            return name;
+        }
         private string ReplaceWords(string name)
         {
             try
@@ -430,9 +489,9 @@ namespace RenameFiles
                     {
                         int charNum = name.Count(c => c == character);          // Counts the number of occurrences of the specific character in a word
 
-                        while(charNum > 0)
+                        while (charNum > 0)
                         {
-                            if(name.Contains(character) && character != '.')    // '.' is handled in a specific way as its used to define file extensions and all '.' cannot be removed
+                            if (name.Contains(character) && character != '.')    // '.' is handled in a specific way as its used to define file extensions and all '.' cannot be removed
                             {
                                 int tempIndex = name.IndexOf(character);
                                 name = name.Remove(tempIndex, 1);               // Removes one character at the time, tempIndex defines the closest char from the start
@@ -444,9 +503,9 @@ namespace RenameFiles
                                     int tempIndex = name.IndexOf(character);
                                     name = name.Remove(tempIndex, 1);
                                 }
-                                if(charNum == 1)
+                                if (charNum == 1)
                                 {
-                                    charNum = 0;                                
+                                    charNum = 0;
                                 }
                             }
                             charNum--;
@@ -469,7 +528,9 @@ namespace RenameFiles
             }
             return "";
         }
+        #endregion
 
+        #region User inputs main menu
         /// <summary>
         /// Capitalizes the first letter in the string.
         /// </summary>
@@ -539,5 +600,6 @@ namespace RenameFiles
                 Console.WriteLine("Character is empty or null");
             }
         }
+        #endregion
     }
 }
